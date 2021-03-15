@@ -41,7 +41,7 @@ class AlgoritmoGenetico:
     def Reproducao(self):
         self.populacaoGenotipo = []
         for i in range(0,len(self.reprodutores)):
-            for j in range(i+1,len(self.reprodutores)):
+            for j in range(0,len(self.reprodutores)):
                 filho1, filho2 = self.CrossOver(self.reprodutores[i], self.reprodutores[j])
                 self.populacaoGenotipo.append(filho1)
                 self.populacaoGenotipo.append(filho2)
