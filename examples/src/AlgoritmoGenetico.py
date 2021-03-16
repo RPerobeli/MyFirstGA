@@ -109,42 +109,72 @@ class AlgoritmoGenetico:
         return ind
     #endfunc
 
-    def SortPopulacoes(self, vetFit, vetPenal, maximize = True):
-        self.populacaoGenotipo = list(self.populacaoGenotipo)
-        for i in range(0,len(vetFit)):
-            for j in range(i,len(vetFit)):
-                if(maximize):
-                    if(vetFit[j] > vetFit[i]):
-                        vetFit = np.insert(vetFit,i,vetFit[j])
-                        vetFit = np.delete(vetFit,j+1)
-                        
-                        self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
-                        self.populacaoGenotipo.pop(j+1)
+    def SortPopulacoes(self, vetFit, vetPenal = [] , maximize = True):
+        if(vetPenal != []):
+            self.populacaoGenotipo = list(self.populacaoGenotipo)
+            for i in range(0,len(vetFit)):
+                for j in range(i,len(vetFit)):
+                    if(maximize):
+                        if(vetFit[j] > vetFit[i]):
+                            vetFit = np.insert(vetFit,i,vetFit[j])
+                            vetFit = np.delete(vetFit,j+1)
+                            
+                            self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                            self.populacaoGenotipo.pop(j+1)
 
-                        vetPenal = np.insert(vetPenal,i,vetPenal[j])
-                        vetPenal = np.delete(vetPenal,j+1)
+                            vetPenal = np.insert(vetPenal,i,vetPenal[j])
+                            vetPenal = np.delete(vetPenal,j+1)
+                        #endif
+                    else:
+                        if(vetFit[j] < vetFit[i]):
+                            vetFit = np.insert(vetFit,i,vetFit[j])
+                            vetFit = np.delete(vetFit,j+1)
+                            
+                            self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                            self.populacaoGenotipo.pop(j+1)
+
+                            self.populacaoFenotipo.insert(i,self.populacaoFenotipo[j])
+                            self.populacaoFenotipo.pop(j+1)
+
+                            vetPenal = np.insert(vetPenal,i,vetPenal[j])
+                            vetPenal = np.delete(vetPenal,j+1)
+                        #endif
                     #endif
-                else:
-                    if(vetFit[j] < vetFit[i]):
-                        vetFit = np.insert(vetFit,i,vetFit[j])
-                        vetFit = np.delete(vetFit,j+1)
-                        
-                        self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
-                        self.populacaoGenotipo.pop(j+1)
-
-                        self.populacaoFenotipo.insert(i,self.populacaoFenotipo[j])
-                        self.populacaoFenotipo.pop(j+1)
-
-                        vetPenal = np.insert(vetPenal,i,vetPenal[j])
-                        vetPenal = np.delete(vetPenal,j+1)
-                    #endif
-                #endif
+                #endfor
             #endfor
-        #endfor
-        self.populacaoGenotipo = np.array(self.populacaoGenotipo)
-        self.Bests.append([vetFit[0],vetPenal[0]])
-        self.Confere
-        return vetFit, vetPenal
+            self.populacaoGenotipo = np.array(self.populacaoGenotipo)
+            self.Bests.append([vetFit[0],vetPenal[0]])
+            return vetFit, vetPenal
+        else:
+            self.populacaoGenotipo = list(self.populacaoGenotipo)
+            for i in range(0,len(vetFit)):
+                for j in range(i,len(vetFit)):
+                    if(maximize):
+                        if(vetFit[j] > vetFit[i]):
+                            vetFit = np.insert(vetFit,i,vetFit[j])
+                            vetFit = np.delete(vetFit,j+1)
+                            
+                            self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                            self.populacaoGenotipo.pop(j+1)
+                        #endif
+                    else:
+                        if(vetFit[j] < vetFit[i]):
+                            vetFit = np.insert(vetFit,i,vetFit[j])
+                            vetFit = np.delete(vetFit,j+1)
+                            
+                            self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                            self.populacaoGenotipo.pop(j+1)
+
+                            self.populacaoFenotipo.insert(i,self.populacaoFenotipo[j])
+                            self.populacaoFenotipo.pop(j+1)
+                        #endif
+                    #endif
+                #endfor
+            #endfor
+            self.populacaoGenotipo = np.array(self.populacaoGenotipo)
+            self.Bests.append(vetFit[0])
+            return vetFit
+        #endif
     #endfunc
 
     def SetReprodutores(self):
@@ -171,7 +201,7 @@ class AlgoritmoGenetico:
         #endfor
     #endfunc
 
-    def PenalizacaoPorDivisao(self, Fit, n, base):
+    def PenalizacaoPorDivisao(self, Fit, n, base=2):
         Fit = Fit/(base**n)
         return Fit
     #endfunc

@@ -90,7 +90,7 @@ for i in range(0,maxGeracoes):
     geracoes.append(i)
     aptidoes.append(vetorAptidao[0])
     exatos.append(exato.max())
-    ag.ImigrarSeNecessario()
+    #ag.ImigrarSeNecessario()
 #endfor
 print("Esperado Exato: " + str(exato.max()))
 

@@ -58,6 +58,10 @@ for i in range(0,maxGeracoes):
 #endfor
 print("Maximo exato: " + str(exato.max()))
 
+for i in range(0,len(xi)):
+    print(ag.populacaoFenotipo[0][i])
+#endfor
+
 plt.plot(geracoes,aptidoes, exatos)
 plt.xlabel("geracoes")
 plt.ylabel("aptidao max")

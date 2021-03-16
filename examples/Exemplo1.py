@@ -55,3 +55,14 @@ for i in range(0,maxGeracoes):
     aptidoes.append(vetorAptidao[0])
     exatos.append(exato.max())
 #endfor
+print("Maximo exato: " + str(exato.max()))
+
+for i in range(0,len(xi)):
+    print(ag.populacaoFenotipo[0][i])
+#endfor
+
+
+plt.plot(geracoes,aptidoes, exatos)
+plt.xlabel("geracoes")
+plt.ylabel("aptidao")
+plt.show()
