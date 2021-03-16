@@ -48,8 +48,6 @@ for i in range(0,maxGeracoes):
     #reprodutores = populacaoGen[0:numReprodutores]
     ag.SetReprodutores()
     ag.Reproducao()
-    #populacaoFilha = Reproducao(reprodutores)
-    #populacaoGen = AdmiteFilhosAptos(populacaoGen, populacaoFilha,vetorAptidao,xi,xf)
 
     #mutacao
     populacaoGen = ag.Mutacao()

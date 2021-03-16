@@ -1,0 +1,1 @@
+vetorPenalty = Restricoes(ag.populacaoFenotipo)

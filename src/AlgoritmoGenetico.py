@@ -11,6 +11,9 @@ class AlgoritmoGenetico:
     populacaoFenotipo = []
     reprodutores = []
 
+    Bests = [] #lista que armazena as melhores aptidoes de cada geracao, caso haja convergência para valor que não atende à regra
+    porcentagemCataclisma = 0
+
     numReprodutores = 0
     tamCromossomo = 0
     def __init__(self, xi, xf, numrep, tamCr, probMut):
@@ -23,19 +26,39 @@ class AlgoritmoGenetico:
         self.probMutacao = probMut
     #endfunc
 
-    def CriaPopulacaoBinaria(self):
-        for i in range(0,self.numReprodutores):
-            individuo = []
-            for i in range(0,len(self.DominioVariaveisInicio)):
-                individuoGene = []
-                for j in range(0,self.tamCromossomo):
-                    individuoGene.append(rnd.randint(0,1))
+    def SetCataclisma(self, valor):
+        self.porcentagemCataclisma = valor
+    #endfunc
+
+    def CriaPopulacaoBinaria(self, num  = 0, imigracao = False):
+        if(imigracao):
+            imigrantes = []
+            for i in range(0,num):
+                individuo = []
+                for i in range(0,len(self.DominioVariaveisInicio)):
+                    individuoGene = []
+                    for j in range(0,self.tamCromossomo):
+                        individuoGene.append(rnd.randint(0,1))
+                    #endfor
+                    individuo.append(individuoGene)
                 #endfor
-                individuo.append(individuoGene)
+                imigrantes.append(individuo)
             #endfor
-            self.reprodutores.append(individuo)
-        #endfor
-        self.Reproducao()
+            self.populacaoGenotipo.append(imigrantes)
+        else:
+            for i in range(0,self.numReprodutores):
+                individuo = []
+                for i in range(0,len(self.DominioVariaveisInicio)):
+                    individuoGene = []
+                    for j in range(0,self.tamCromossomo):
+                        individuoGene.append(rnd.randint(0,1))
+                    #endfor
+                    individuo.append(individuoGene)
+                #endfor
+                self.reprodutores.append(individuo)
+            #endfor
+            self.Reproducao()
+        #endif
     #endfunc
 
     def Reproducao(self):
@@ -51,7 +74,7 @@ class AlgoritmoGenetico:
     #endfunc
 
     def CrossOver(self, pai1, pai2):
-        pontoXover = rnd.randint(0,len(pai1))
+        pontoXover = rnd.randint(0,len(pai1[0]))
         for j in range(0,len(pai1)):
             for i in range(0,pontoXover):
                 p1 = pai1[j]
@@ -86,21 +109,42 @@ class AlgoritmoGenetico:
         return ind
     #endfunc
 
-    def SortPopulacoes(self, vetFit):
+    def SortPopulacoes(self, vetFit, vetPenal, maximize = True):
         self.populacaoGenotipo = list(self.populacaoGenotipo)
         for i in range(0,len(vetFit)):
             for j in range(i,len(vetFit)):
-                if(vetFit[j] > vetFit[i]):
-                    vetFit = np.insert(vetFit,i,vetFit[j])
-                    vetFit = np.delete(vetFit,j+1)
-                    
-                    self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
-                    self.populacaoGenotipo.pop(j+1)
+                if(maximize):
+                    if(vetFit[j] > vetFit[i]):
+                        vetFit = np.insert(vetFit,i,vetFit[j])
+                        vetFit = np.delete(vetFit,j+1)
+                        
+                        self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                        self.populacaoGenotipo.pop(j+1)
+
+                        vetPenal = np.insert(vetPenal,i,vetPenal[j])
+                        vetPenal = np.delete(vetPenal,j+1)
+                    #endif
+                else:
+                    if(vetFit[j] < vetFit[i]):
+                        vetFit = np.insert(vetFit,i,vetFit[j])
+                        vetFit = np.delete(vetFit,j+1)
+                        
+                        self.populacaoGenotipo.insert(i,self.populacaoGenotipo[j])
+                        self.populacaoGenotipo.pop(j+1)
+
+                        self.populacaoFenotipo.insert(i,self.populacaoFenotipo[j])
+                        self.populacaoFenotipo.pop(j+1)
+
+                        vetPenal = np.insert(vetPenal,i,vetPenal[j])
+                        vetPenal = np.delete(vetPenal,j+1)
+                    #endif
                 #endif
             #endfor
         #endfor
         self.populacaoGenotipo = np.array(self.populacaoGenotipo)
-        return vetFit
+        self.Bests.append([vetFit[0],vetPenal[0]])
+        self.Confere
+        return vetFit, vetPenal
     #endfunc
 
     def SetReprodutores(self):
@@ -127,14 +171,60 @@ class AlgoritmoGenetico:
         #endfor
     #endfunc
 
-    def PenalizacaoPorMetade(self, Fit, n):
-        Fit = Fit/(2**n)
+    def PenalizacaoPorDivisao(self, Fit, n, base):
+        Fit = Fit/(base**n)
         return Fit
     #endfunc
 
-    def PenalizacaoPorDobro(self, Fit, n):
-        Fit = Fit*(2**n)
+    def PenalizacaoPorMultiplicacao(self, Fit, n, base = 2):
+        Fit = Fit*(base**n)
         return Fit
     #endfunc
+    
+    def Penalize(self, vetFit, vetPenal, base = 2, maximize = True):
+        if(maximize):
+            for i in range(0,len(vetFit)):
+                vetFit[i] = self.PenalizacaoPorDivisao(vetFit[i], vetPenal[i], base)
+            #endfor
+        else:
+            for i in range(0,len(vetFit)):
+                vetFit[i] = self.PenalizacaoPorMultiplicacao(vetFit[i], vetPenal[i], base)
+        #endif
+        return vetFit
+    #endfunc
+
+    def Cataclisma(self):
+        #elimina parte da populacao
+        print("CATACLISMA!!!!")
+        self.numSobreviventes = (1- self.porcentagemCataclisma)*len(self.populacaoGenotipo)
+        self.populacaoGenotipo = self.populacaoGenotipo[0:self.numSobreviventes]
+    #endfunc
+
+    def Imigracao(self, numFaltante):
+        self.CriaPopulacaoBinaria(num = numFaltante, imigracao = True)
+    #endfunc
+
+    def ConfereConvergenciaInvalida(self):
+        listaAux = self.Bests[::-1]
+        resp = False
+        if(listaAux[0][1] != 0):
+            if(listaAux[0][0] == listaAux[1][0] and listaAux[0][0] == listaAux[2][0] and listaAux[0][0] == listaAux[3][0] and listaAux[0][0] == listaAux[4][0]):
+                resp = True
+            #endif
+        #endif
+        return resp
+    #endfunc
+
+    def ImigrarSeNecessario(self):
+        if(self.ConfereConvergenciaInvalida):
+            numPopAnterior = len(self.populacaoGenotipo)
+            self.Cataclisma()
+            numFaltante = numPopAnterior - len(self.populacaoGenotipo)
+            print(numFaltante)
+            self.Imigracao(numFaltante)
+    #endfunc
+
+
+        
 
 #endclass
