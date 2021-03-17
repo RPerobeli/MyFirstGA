@@ -12,7 +12,7 @@ class AlgoritmoGenetico:
     reprodutores = []
 
     Bests = [] #lista que armazena as melhores aptidoes de cada geracao, caso haja convergência para valor que não atende à regra
-    porcentagemCataclisma = 0
+    porcentagemCataclismo = 0
 
     numReprodutores = 0
     tamCromossomo = 0
@@ -26,8 +26,8 @@ class AlgoritmoGenetico:
         self.probMutacao = probMut
     #endfunc
 
-    def SetCataclisma(self, valor):
-        self.porcentagemCataclisma = valor
+    def SetCataclismo(self, valor):
+        self.porcentagemCataclismo = valor
     #endfunc
 
     def CriaPopulacaoBinaria(self, num  = 0, imigracao = False):
@@ -88,12 +88,19 @@ class AlgoritmoGenetico:
         return np.array(pai1),np.array(pai2)
     #endfunc
 
-    def Fenotipifica(self, xi, xf):
+    def Fenotipifica(self, xi, xf, indVarDiscretas = -1, discrete = False):
         self.populacaoFenotipo = []
+        indVarDiscretas = list(indVarDiscretas)
+
         for individuo in list(self.populacaoGenotipo):
             individuoFenotipo = []
             for i in range(0, len(xi)):
                 resultado = xi[i] + self.IND(individuo[i]) * (xf[i]-xi[i])/(2**(len(individuo[i]))-1)
+                if(discrete):
+                    if(self.ConferirVarDiscreta(indVarDiscretas,i)):
+                        resultado = round(resultado,0)
+                    #endif
+                #endif
                 individuoFenotipo.append(resultado)
             #endfor
             self.populacaoFenotipo.append(individuoFenotipo)
@@ -108,6 +115,16 @@ class AlgoritmoGenetico:
         #endfor
         return ind
     #endfunc
+
+    def ConferirVarDiscreta(self, indVarDiscretas, i):
+        #Confere se o indice i de uma variável está entre as variáveis discretas
+        for j in indVarDiscretas:
+            if(i == j):
+                return True
+            #endif
+        #endfor
+        return False
+    #endif
 
     def SortPopulacoes(self, vetFit, vetPenal = [] , maximize = True):
         if(vetPenal != []):
@@ -223,10 +240,10 @@ class AlgoritmoGenetico:
         return vetFit
     #endfunc
 
-    def Cataclisma(self):
+    def Cataclismo(self):
         #elimina parte da populacao
-        print("CATACLISMA!!!!")
-        self.numSobreviventes = (1- self.porcentagemCataclisma)*len(self.populacaoGenotipo)
+        print("CATACLISMO!!!!")
+        self.numSobreviventes = (1- self.porcentagemCataclismo)*len(self.populacaoGenotipo)
         self.populacaoGenotipo = self.populacaoGenotipo[0:self.numSobreviventes]
     #endfunc
 
@@ -248,7 +265,7 @@ class AlgoritmoGenetico:
     def ImigrarSeNecessario(self):
         if(self.ConfereConvergenciaInvalida):
             numPopAnterior = len(self.populacaoGenotipo)
-            self.Cataclisma()
+            self.Cataclismo()
             numFaltante = numPopAnterior - len(self.populacaoGenotipo)
             print(numFaltante)
             self.Imigracao(numFaltante)
