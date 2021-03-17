@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rnd
+from src import Cataclismo as cata
 
 class AlgoritmoGenetico:
     #atributos
@@ -10,12 +11,14 @@ class AlgoritmoGenetico:
     populacaoGenotipo = []
     populacaoFenotipo = []
     reprodutores = []
-
-    Bests = [] #lista que armazena as melhores aptidoes de cada geracao, caso haja convergência para valor que não atende à regra
-    porcentagemCataclismo = 0
+    Bests = [[0,0], [0,0], [0,0], [0,0]] #lista que armazena as melhores aptidoes de cada geracao, caso haja convergência para valor que não atende à regra
 
     numReprodutores = 0
     tamCromossomo = 0
+
+    cataclismo = cata.Cataclismo()
+
+        
     def __init__(self, xi, xf, numrep, tamCr, probMut):
         self.DominioVariaveisInicio = list(xi)
         self.DominioVariaveisFim = list(xf)
@@ -24,10 +27,6 @@ class AlgoritmoGenetico:
         self.tamCromossomo = tamCr
 
         self.probMutacao = probMut
-    #endfunc
-
-    def SetCataclismo(self, valor):
-        self.porcentagemCataclismo = valor
     #endfunc
 
     def CriaPopulacaoBinaria(self, num  = 0, imigracao = False):
@@ -42,9 +41,8 @@ class AlgoritmoGenetico:
                     #endfor
                     individuo.append(individuoGene)
                 #endfor
-                imigrantes.append(individuo)
+                self.populacaoGenotipo.append(individuo)
             #endfor
-            self.populacaoGenotipo.append(imigrantes)
         else:
             for i in range(0,self.numReprodutores):
                 individuo = []
@@ -70,7 +68,7 @@ class AlgoritmoGenetico:
                 self.populacaoGenotipo.append(filho2)
             #endfor
         #endfor
-        self.populacaoGenotipo = np.array(self.populacaoGenotipo)
+        #self.populacaoGenotipo = np.arrayself.populacaoGenotipo)
     #endfunc
 
     def CrossOver(self, pai1, pai2):
@@ -88,7 +86,7 @@ class AlgoritmoGenetico:
         return np.array(pai1),np.array(pai2)
     #endfunc
 
-    def Fenotipifica(self, xi, xf, indVarDiscretas = -1, discrete = False):
+    def Fenotipifica(self, xi, xf, indVarDiscretas = [], discrete = False):
         self.populacaoFenotipo = []
         indVarDiscretas = list(indVarDiscretas)
 
@@ -159,7 +157,7 @@ class AlgoritmoGenetico:
                     #endif
                 #endfor
             #endfor
-            self.populacaoGenotipo = np.array(self.populacaoGenotipo)
+            #self.populacaoGenotipo = np.array(self.populacaoGenotipo)
             self.Bests.append([vetFit[0],vetPenal[0]])
             return vetFit, vetPenal
         else:
@@ -188,8 +186,8 @@ class AlgoritmoGenetico:
                     #endif
                 #endfor
             #endfor
-            self.populacaoGenotipo = np.array(self.populacaoGenotipo)
-            self.Bests.append(vetFit[0])
+            #self.populacaoGenotipo = np.array(self.populacaoGenotipo)
+            self.Bests.append([vetFit[0],0])
             return vetFit
         #endif
     #endfunc
@@ -243,8 +241,9 @@ class AlgoritmoGenetico:
     def Cataclismo(self):
         #elimina parte da populacao
         print("CATACLISMO!!!!")
-        self.numSobreviventes = (1- self.porcentagemCataclismo)*len(self.populacaoGenotipo)
-        self.populacaoGenotipo = self.populacaoGenotipo[0:self.numSobreviventes]
+        numSobreviventes = (1- self.cataclismo.prcntMortes)*len(self.populacaoGenotipo)
+        self.populacaoGenotipo = self.populacaoGenotipo[0:int(numSobreviventes)]
+        #print(len(self.populacaoGenotipo))
     #endfunc
 
     def Imigracao(self, numFaltante):
@@ -262,12 +261,13 @@ class AlgoritmoGenetico:
         return resp
     #endfunc
 
-    def ImigrarSeNecessario(self):
-        if(self.ConfereConvergenciaInvalida):
+    def ImigrarSeNecessario(self, taxaMorte = 0.2):
+        if(self.ConfereConvergenciaInvalida()):
             numPopAnterior = len(self.populacaoGenotipo)
+            self.cataclismo.SetPorcentagemMortes(taxaMorte)
             self.Cataclismo()
             numFaltante = numPopAnterior - len(self.populacaoGenotipo)
-            print(numFaltante)
+            #print(numFaltante)
             self.Imigracao(numFaltante)
     #endfunc
  

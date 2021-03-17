@@ -49,11 +49,11 @@ def Restricoes(popFen):
 # ------------FUNCOES-END----------------
 
 # INICIO MAIN
-numReprodutores = 50
+numReprodutores = 10
 tamCromossomo = 15
 xi = [100, 1000, 1000, 10, 10, 10, 10, 10]
 xf = [10000, 10000, 10000, 1000, 1000, 1000, 1000, 1000]
-probMutacao = 0.1 # 5%
+probMutacao = 0.05 # 5%
 geracao = 0
 maxGeracoes = 100
 basePenalizacao = 10
@@ -63,7 +63,7 @@ aptidoes = []
 exato = np.array([7049.248021])
 exatos = []
 
-#rnd.seed(2)
+rnd.seed(2)
 ag = AG.AlgoritmoGenetico(xi, xf, numReprodutores, tamCromossomo, probMutacao)
 ag.CriaPopulacaoBinaria()
 print(len(ag.populacaoGenotipo))
@@ -90,7 +90,7 @@ for i in range(0,maxGeracoes):
     geracoes.append(i)
     aptidoes.append(vetorAptidao[0])
     exatos.append(exato.max())
-    #ag.ImigrarSeNecessario()
+    ag.ImigrarSeNecessario()
 #endfor
 print("Esperado Exato: " + str(exato.max()))
 
